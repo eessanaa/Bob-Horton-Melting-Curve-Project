@@ -25,6 +25,8 @@
   - Plot area showing the *Fraction Melted* (red) and *Derivative* (blue).  
   - Results update automatically whenever you change inputs.
 
+<img width="1400" height="858" alt="image" src="https://github.com/user-attachments/assets/632e7d7a-2e9f-4366-8083-ca8d2c2a4beb" />
+
 ---
 
 ## Inputs
@@ -100,5 +102,6 @@
 - Integrate Wallace rule or uMelt comparison directly into the app.  
 
 ---
+
 
 
