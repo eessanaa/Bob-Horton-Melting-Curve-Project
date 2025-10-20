@@ -39,7 +39,7 @@ Each component serves a specific purpose to help users visualize melting behavio
 - **DNA Sequence Box:**  
   Located near the top of the app. Enter any DNA sequence using the characters A, T, G, and C.  
   - Example: `ATGCGCGTTAGC`  
-  - The program automatically ignores lowercase letters or spaces.  
+  - The program automatically ignores lowercase letters, spaces or letters other than A, T, G, and C.  
   - After entering the sequence, the melting curve updates instantly (no need to press a “Run” button).
 
 ---
@@ -123,4 +123,5 @@ Each parameter affects the DNA duplex stability differently:
 ### 🔵 Derivative d(Fraction)/dT (Blue)
 - Shows the rate of melting vs. temperature.  
 - The peak identifies the **melting temperature (Tm)** — the point of fastest strand separation.  
+
 
