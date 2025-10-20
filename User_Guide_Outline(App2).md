@@ -17,7 +17,7 @@
   A modern web browser such as Chrome, Edge, or Firefox.
 
 - **How to Launch:**  
-  1. Open the file `Week_4_App2_DNA_Melting_Curve.html` in your browser.  
+  1. Open the file in your browser.  
   2. The simulator interface will appear with adjustable input fields and a live chart.
 
 - **Interface Overview:**  
@@ -123,3 +123,4 @@ Each parameter affects the DNA duplex stability differently:
 ### 🔵 Derivative d(Fraction)/dT (Blue)
 - Shows the rate of melting vs. temperature.  
 - The peak identifies the **melting temperature (Tm)** — the point of fastest strand separation.  
+
