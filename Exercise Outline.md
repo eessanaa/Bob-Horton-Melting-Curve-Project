@@ -90,8 +90,9 @@ Write a short comparison (5–8 sentences total):
 
 ## Currently thinking of word problems (examples)
 - “Given two primers of equal length (Primer A: 30% GC, Primer B: 60% GC), predict which has higher Tm by Wallace, then validate with the app and explain any discrepancy.”
-- “You increase Na⁺ from 0.05 M to 0.15 M in the app. Predict and confirm the direction/magnitude of Tm shift; justify using thermodynamic reasoning.”
-- “Two sequences have identical GC% but different base order. Use the app to show how nearest-neighbor context alters Tm compared to Wallace.”
+- “You increase Na⁺ from 0.05 M to 0.15 M in the app. Predict and confirm the difference in the plot; justify using thermodynamic reasoning.”
+- “Two sequences have identical GC% but different base order. Use the app to show how it alters the curve.”
 - “Your app shows two derivative peaks for a sequence. What experimental scenarios could cause this, and how would you troubleshoot in qPCR?”
+
 
 
