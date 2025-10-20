@@ -2,9 +2,9 @@
 
 ## Objective
 Use the **DNA Melting Curve Simulator** (Week_4_App2_DNA_Melting_Curve.html), the **Wallace equation**, and **uMelt** to:
-1) estimate melting temperatures (Tm) for several sequences,
-2) compare model outputs, and
-3) explain how sequence composition and salt affect melting behavior.
+1) Estimate melting temperatures (Tm) for several sequences
+2) Compare model outputs
+3) Explain how sequence composition and salt affect melting behavior
 
 ---
 
@@ -92,3 +92,4 @@ Write a short comparison (5–8 sentences total):
 - “You increase Na⁺ from 0.05 M to 0.15 M in the app. Predict and confirm the direction/magnitude of Tm shift; justify using thermodynamic reasoning.”
 - “Two sequences have identical GC% but different base order. Use the app to show how nearest-neighbor context alters Tm compared to Wallace.”
 - “Your app shows two derivative peaks for a sequence. What experimental scenarios could cause this, and how would you troubleshoot in qPCR?”
+
