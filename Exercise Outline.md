@@ -147,7 +147,7 @@ Keep ionic conditions **constant within each comparison** so differences come fr
 
 ### What to answer
 - Order the strains by **increasing Tm** and explain how **GC content / nearest-neighbor context** could cause the ranking.  
-- If two strains have the **same GC%** but different **peak shapes** or **slightly different Tm**, what model feature (e.g., **nearest-neighbor stacking**) explains that?  
+- If two strains have the **same GC%** but different **peak shapes** or **slightly different Tm**, what model feature explains that?  
 - Propose a simple **decision rule** (e.g., “if Tm ≥ X °C under these conditions, call it Strain B”) and justify it.
 
 ---
@@ -163,6 +163,7 @@ Keep ionic conditions **constant within each comparison** so differences come fr
 *Currently thinking of word problems we can add here, e.g.:*
 - “You observe **two derivative peaks** for a variant — list two experimental causes and how you’d troubleshoot in qPCR.”  
 - “Design a threshold: if **Na⁺ triples**, how should your **Tm cutoff** and why?”
+
 
 
 
