@@ -95,4 +95,74 @@ Write a short comparison (5–8 sentences total):
 - “Your app shows two derivative peaks for a sequence. What experimental scenarios could cause this, and how would you troubleshoot in qPCR?”
 
 
+----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# Exercise: Identify Sequences from Melting Curves
+Use the **DNA Melting Curve Simulator (App2)** as the primary tool and **uMelt** as a reference. You will run two mini-investigations:
+
+- **Part A — Mutated vs Wild-Type (single-base change)**
+- **Part B — Different Strains of the Same Organism (sequence variants)**
+
+Keep ionic conditions **constant within each comparison** so differences come from sequence, not parameter changes.
+
+---
+
+## Part A — Mutated vs Wild-Type (SNP detection)
+
+### Given sequences (simple example)
+- **Wild-type (WT):** `ATGCGTACCGTAACTGGA`  
+- **Mutant (SNP):**  `ATGCGTACCATAACTGGA`  *(G→A at position 10)*
+
+### What to do
+1) Open the app  
+   - Set **Na⁺ = 0.05 M**, **Mg²⁺ = 0.005 M**, **Start = 40 °C**, **End = 95 °C**, **Step = 1 °C**.  
+2) Paste **WT**, observe both curves; then paste **Mutant** under the same conditions.  
+3) For each sequence, note:
+   - **Tm_app** = temperature at the **peak of the blue derivative** curve.  
+   - Curve **shape** (sharp vs broad, single vs double transition).  
+4) (Optional) Open **uMelt** with Na⁺ = 50 mM, Mg²⁺ = 0 mM, DMSO = 0%. Record **Tm_uMelt** for both --> To double check the results.
+
+### What to answer
+- Which sequence shows the **higher Tm**? Which has the **sharper peak**?  
+- Based on Tm and peak shape, **which one is wild-type and which is mutant**? Why?  
+- If you increase Na⁺ to **0.15 M** in the app for the *same* sequence, how does Tm shift, and why?
+
+**Expected pattern:** the mutant (with a destabilizing base change) tends to be weaker so it has **lower Tm** (Less heat needed to seperate the strands).
+
+---
+
+## Part B — Different Strains (variant identification)
+
+### Given variant-like sequences (synthetic, equal length)
+- **Strain A:** `GCTTAGGACCTGATCGTA`  
+- **Strain B:** `GCTCAGGACCTGATGGTA`  *(two substitutions)*  
+- **Strain C:** `GCTTAGGACATGATCGTA`  *(one substitution reducing GC)* --> How long should they be?
+
+### What to do
+1) In the app, use **the same ionic settings** for all three strains (e.g., Na⁺ = 0.05 M, Mg²⁺ = 0.005 M).  
+2) For each strain, record:
+   - **Tm_app** (derivative peak temperature).  
+   - Any notes on **peak count/width** and **fraction-melted S-curve**.  
+3) (Optional) Check each sequence in **uMelt** (Na⁺ = 50 mM; Mg²⁺ = 0 mM) and note **Tm_uMelt**.
+
+### What to answer
+- Order the strains by **increasing Tm** and explain how **GC content / nearest-neighbor context** could cause the ranking.  
+- If two strains have the **same GC%** but different **peak shapes** or **slightly different Tm**, what model feature (e.g., **nearest-neighbor stacking**) explains that?  
+- Propose a simple **decision rule** (e.g., “if Tm ≥ X °C under these conditions, call it Strain B”) and justify it.
+
+---
+
+## Reporting (what to submit)
+- **Table** of Tm_app values for each sequence (and Tm_uMelt if you used it).  
+- 1–2 **screenshots** from the app showing representative curves.  
+- A **summary** (6–10 sentences) explaining which sequence is WT vs Mutant (Part A) and how you distinguished strains (Part B).  
+- (Optional) A brief note on how changing **Na⁺/Mg²⁺** would modify your decision thresholds.
+
+---
+
+*Currently thinking of word problems we can add here, e.g.:*
+- “You observe **two derivative peaks** for a variant — list two experimental causes and how you’d troubleshoot in qPCR.”  
+- “Design a threshold: if **Na⁺ triples**, how should your **Tm cutoff** and why?”
+
+
 
