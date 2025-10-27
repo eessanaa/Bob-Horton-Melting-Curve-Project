@@ -107,7 +107,7 @@ Keep ionic conditions **constant within each comparison** so differences come fr
 
 ---
 
-## Part A — Mutated vs Wild-Type (SNP detection)
+## Part A — Mutated vs Wild-Type 
 
 ### Given sequences (simple example)
 - **Wild-type (WT):** `ATGCGTACCGTAACTGGA`  
@@ -131,7 +131,7 @@ Keep ionic conditions **constant within each comparison** so differences come fr
 
 ---
 
-## Part B — Different Strains (variant identification)
+## Part B — Different Strains (variant identification) --> Just how COVID has different variants.
 
 ### Given variant-like sequences (synthetic, equal length)
 - **Strain A:** `GCTTAGGACCTGATCGTA`  
@@ -163,6 +163,7 @@ Keep ionic conditions **constant within each comparison** so differences come fr
 *Currently thinking of word problems we can add here, e.g.:*
 - “You observe **two derivative peaks** for a variant — list two experimental causes and how you’d troubleshoot in qPCR.”  
 - “Design a threshold: if **Na⁺ triples**, how should your **Tm cutoff** and why?”
+
 
 
 
