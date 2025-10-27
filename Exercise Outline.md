@@ -109,7 +109,7 @@ Keep ionic conditions **constant within each comparison** so differences come fr
 
 ## Part A — Mutated vs Wild-Type 
 
-### Given sequences (simple example)
+### Given sequences (simple example) --> How long should the sequences be?
 - **Wild-type (WT):** `ATGCGTACCGTAACTGGA`  
 - **Mutant (SNP):**  `ATGCGTACCATAACTGGA`  *(G→A at position 10)*
 
@@ -163,6 +163,7 @@ Keep ionic conditions **constant within each comparison** so differences come fr
 *Currently thinking of word problems we can add here, e.g.:*
 - “You observe **two derivative peaks** for a variant — list two experimental causes and how you’d troubleshoot in qPCR.”  
 - “Design a threshold: if **Na⁺ triples**, how should your **Tm cutoff** and why?”
+
 
 
 
