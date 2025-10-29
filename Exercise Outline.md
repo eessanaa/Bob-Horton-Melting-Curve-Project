@@ -166,6 +166,7 @@ Keep ionic conditions **constant within each comparison** so differences come fr
 
 
 One sophisticated app that is configurable
+Examples: Teaching basics of melting curves, Virus strain identification, Simulated dataset generation (I want something 40% GC and 100 long etc). Relationship between melting and salt concentration (Example). 
 
 
 
