@@ -165,6 +165,7 @@ Keep ionic conditions **constant within each comparison** so differences come fr
 - “Design a threshold: if **Na⁺ triples**, how should your **Tm cutoff** and why?”
 
 
+One sophisticated app that is configurable
 
 
 
