@@ -1,127 +1,173 @@
 # 🧬 DNA Melting Curve Simulator — User Guide
 
-## Introduction
-- **Purpose:**  
-  The DNA Melting Curve Simulator allows users to visualize and understand how DNA strands separate (melt) as temperature increases.  
-  It connects fundamental **DNA thermodynamics** to the **melting curve analysis** commonly used in qPCR and other molecular biology applications.
+## 📖 Overview
+The **DNA Melting Curve Simulator** is an interactive educational tool that demonstrates how DNA strands separate (“melt”) as temperature increases.  
+It links the thermodynamics of DNA duplex stability to **melting curve analysis**, a technique widely used in qPCR and molecular diagnostics.
 
-- **Audience:**  
-  - **Molecular Biologists:** interpret melting curves and temperature transitions.  
-  - **Programmers:** understand the algorithmic model (nearest-neighbor thermodynamics + HMM).  
-  - **Students & Teachers:** explore the relationship between sequence composition and DNA stability.
+### 🎯 Purpose
+This simulator helps users:
+- Visualize DNA melting curves and understand how **GC content**, **ion concentration**, and **sequence length** affect melting temperature (Tm).  
+- Explore **real-time curve generation** using biologically realistic thermodynamic models.  
+- Interpret **fraction melted** and **derivative (dF/dT)** plots as they relate to DNA stability and hybridization efficiency.
 
----
-
-## Getting Started
-- **System Requirements:**  
-  A modern web browser such as Chrome, Edge, or Firefox.
-
-- **How to Launch:**  
-  1. Open the file in your browser.  
-  2. The simulator interface will appear with adjustable input fields and a live chart.
-
-- **Interface Overview:**  
-  - Input boxes for DNA sequence and parameters.  
-  - Plot area showing the *Fraction Melted* (red) and *Derivative* (blue).  
-  - Results update automatically whenever you change inputs.
-
-<img width="1400" height="858" alt="image" src="https://github.com/user-attachments/assets/632e7d7a-2e9f-4366-8083-ca8d2c2a4beb" />
+### 👥 Who It’s For
+| Audience | Goals |
+|-----------|-------|
+| **Students & Teachers** | Learn the relationship between DNA composition, salt concentration, and Tm. |
+| **Molecular Biologists** | Analyze melting transitions and interpret experimental melting behavior. |
+| **Programmers & Developers** | Understand how thermodynamic parameters and visualization models can be implemented in a web app. |
 
 ---
 
-## Understanding the Interface
-The simulator interface is divided into three main parts: **Input Panel**, **Parameter Controls**, and **Plot Display**.  
-Each component serves a specific purpose to help users visualize melting behavior interactively.
+## 🚀 Getting Started
+
+### ✅ Requirements
+- A modern web browser (Chrome, Edge, or Firefox recommended)
+- No installation or additional software needed
+
+### 💡 How to Launch
+1. Open the `index.html` file in your browser.  
+2. The simulator will load with default settings.  
+3. You can immediately begin entering sequences and adjusting parameters.  
+4. The melting curves update automatically — no “Run” button required.
 
 ---
 
-### 1️⃣ Input Panel (Top Section)
-- **DNA Sequence Box:**  
-  Located near the top of the app. Enter any DNA sequence using the characters A, T, G, and C.  
-  - Example: `ATGCGCGTTAGC`  
-  - The program automatically ignores lowercase letters, spaces or letters other than A, T, G, and C.  
-  - After entering the sequence, the melting curve updates instantly (no need to press a “Run” button).
+## 🧩 Interface Overview
+
+The simulator is divided into **three main panels**:
+
+| Section | Purpose |
+|----------|----------|
+| **1️⃣ Input Panel** | Enter or paste DNA sequences (A, T, G, C). |
+| **2️⃣ Parameter Controls** | Adjust environmental and experimental conditions. |
+| **3️⃣ Plot Display** | View melting and derivative curves in real time. |
 
 ---
 
-### 2️⃣ Parameter Controls (Middle Section)
-Directly below the sequence box are the controls for experimental conditions. These parameters affect how the DNA melts.
-
-- **Na⁺ concentration (M):**  
-  Adjusts sodium ion concentration.  
-  - Higher Na⁺ → more stable helix → higher Tm.
-
-- **Mg²⁺ concentration (M):**  
-  Strongly influences duplex stability.  
-  - Typically set to 0.005 M by default.  
-  - Increasing Mg²⁺ shifts the melting curve right (higher Tm).
-
-- **Temperature Range:**  
-  - **Start Temp (°C):** Beginning of the simulation (default 40 °C).  
-  - **End Temp (°C):** End of the simulation (default 95 °C).  
-  - **Step (°C):** Temperature increment (smaller = smoother curve).  
+### 1️⃣ Input Panel
+- Enter your DNA sequence using A, T, G, and C.  
+  Example: `ATGCGCGTTAGC`  
+- The simulator automatically filters invalid characters and updates instantly.  
+- Lowercase letters, spaces, and invalid symbols are ignored.
 
 ---
 
-### 3️⃣ Output Plot (Bottom Section)
-This section visualizes the DNA melting process using two real-time curves.
+### 2️⃣ Parameter Controls
+Modify the key experimental conditions to see their effects on melting behavior:
 
-- **Red Curve — Fraction Melted:**  
-  Displays the proportion of DNA that is single-stranded at each temperature.  
-  - Y-axis (left) = fraction melted (0 = fully double-stranded, 1 = fully melted).  
-  - The S-shaped region marks the melting transition.
-
-- **Blue Curve — Derivative (dFraction/dT):**  
-  Represents the rate of melting with temperature.  
-  - Y-axis (right).  
-  - The **peak corresponds to the melting temperature (Tm)** — the point of fastest strand separation.
-
-> 💡 Hover over any point to display exact temperature and melting fraction values.
+| Parameter | Description | Default | Effect |
+|------------|--------------|----------|---------|
+| **Na⁺ concentration (M)** | Adjusts sodium ion levels | 0.05 | Higher Na⁺ = higher Tm |
+| **Mg²⁺ concentration (M)** | Controls magnesium ion levels | 0.005 | Strong stabilizing effect |
+| **Start Temperature (°C)** | Beginning of the simulation | 40 | Defines lower bound of plot |
+| **End Temperature (°C)** | Upper limit of simulation | 95 | Defines upper bound of plot |
+| **Step Size (°C)** | Temperature increments | 1 | Smaller step = smoother curve |
 
 ---
 
-### 4️⃣ Interactive Behavior
-- All changes update the plots in real time.  
-- The app uses a **Hidden Markov Model (HMM)** to smooth transitions between melted and bound regions.  
-- Chart.js automatically rescales the axes to fit the melting region.  
-- Adjusting Na⁺, Mg²⁺, or sequence instantly recalculates the entire curve.
+### 3️⃣ Plot Display
+The plot area dynamically shows how DNA melts under chosen conditions.
+
+#### 🔴 Fraction Melted (Red Curve)
+- Represents the proportion of DNA that has melted at each temperature.  
+- Y-axis (left): fraction melted (0 = fully double-stranded, 1 = fully melted).  
+- The **S-shaped curve** marks the transition region between dsDNA and ssDNA.
+
+#### 🔵 Derivative Curve (Blue)
+- Displays the rate of melting (dFraction/dT).  
+- Y-axis (right): rate of melting.  
+- The **peak** of the blue curve corresponds to **Tm**, the apparent melting temperature.
+
+> 💡 Tip: Hover over the plot to see temperature and fraction values at any point.
 
 ---
 
-### 5️⃣ Example Walkthrough
-1. Enter the sequence `ATGCGCGTTAGC`.  
-2. Keep Na⁺ = 0.05 M, Mg²⁺ = 0.005 M, Start = 40 °C, End = 95 °C, Step = 1 °C.  
-3. Observe:
-   - Fraction Melted (red) rises sharply near 80–90 °C.  
-   - Derivative (blue) peaks around 88 °C → **Tm ≈ 88 °C**.
+## 🔄 Interactive Features
+
+- **Live updates:** All changes to sequence or parameters automatically refresh both curves.  
+- **Dynamic scaling:** The chart automatically adjusts axis limits to center around the melting region.  
+- **Realistic modeling:** Uses a **nearest-neighbor thermodynamics approach** to estimate stability and simulate melting transitions.  
+- **Smooth transitions:** A Hidden Markov Model (HMM) framework ensures smooth melting region boundaries.
 
 ---
 
-## Understanding the Parameters
-Each parameter affects the DNA duplex stability differently:
+## 🧠 Example Walkthrough
 
-- **Sequence Composition:**  
-  More G–C pairs = more hydrogen bonds = higher Tm.  
-  A–T pairs have fewer hydrogen bonds and melt earlier.
-
-- **Ion Concentration:**  
-  Ions stabilize the negatively charged phosphate backbone.  
-  Higher Na⁺ or Mg²⁺ = stronger helix = higher Tm.
-
-- **Temperature Range:**  
-  Defines the range for the simulation.  
-  Smaller step values produce smoother, more detailed transitions.
+1. **Enter sequence:**  
+   `ATGCGCGTTAGC`  
+2. **Set parameters:**  
+   - Na⁺ = 0.05 M  
+   - Mg²⁺ = 0.005 M  
+   - Start = 40 °C  
+   - End = 95 °C  
+   - Step = 1 °C  
+3. **Observe:**  
+   - The red fraction-melted curve increases sharply between 80–90 °C.  
+   - The blue derivative curve peaks around 88 °C.  
+   - Therefore, **Tm ≈ 88 °C**, meaning half of the DNA duplexes are separated at this temperature.
 
 ---
 
-## Output Graphs
-### 🔴 Fraction Melted (Red)
-- Displays the proportion of DNA that is single-stranded at each temperature.  
-- The S-shaped rise marks the transition region.  
-- Y-axis (left) = fraction melted, X-axis = temperature.
+## 🧩 Interpreting Results
 
-### 🔵 Derivative d(Fraction)/dT (Blue)
-- Shows the rate of melting vs. temperature.  
-- The peak identifies the **melting temperature (Tm)** — the point of fastest strand separation.  
+| Parameter | Effect on Tm | Explanation |
+|------------|---------------|-------------|
+| **Higher GC content** | ↑ Tm | More hydrogen bonds per base pair |
+| **Longer sequences** | ↑ Tm | More cumulative base pairing interactions |
+| **Higher Na⁺/Mg²⁺** | ↑ Tm | Ionic shielding reduces repulsion between strands |
+| **More A–T pairs** | ↓ Tm | Weaker hydrogen bonding reduces stability |
 
+---
 
+## 📊 Output and Analysis
+
+The simulator provides **two key outputs**:
+
+1. **Fraction Melted Curve (Red)**  
+   - Shows the overall DNA melting transition.  
+   - The slope indicates how cooperative the melting process is.
+
+2. **Derivative Curve (Blue)**  
+   - Highlights the melting temperature (Tm) as a distinct peak.  
+   - Multiple peaks may indicate heterogeneous regions or secondary structures.
+
+Both graphs can be exported or screenshotted for lab reports and educational exercises.
+
+---
+
+## 🧾 Example Use Cases
+
+| Mode | Description |
+|------|--------------|
+| **Educational Demonstration** | Show students how GC%, salt, and sequence length affect melting. |
+| **Variant Comparison** | Compare melting profiles between disease variants (e.g., SARS-CoV-2 strains). |
+| **Parameter Testing** | Explore how changing Na⁺ or Mg²⁺ concentration shifts the Tm curve. |
+| **Data Generation** | Produce simulated datasets for machine learning or statistical modeling. |
+
+---
+
+## 🧭 Tips & Best Practices
+- Keep sequences between **20–200 bases** for smooth curves.  
+- Avoid extremely low or high ion concentrations that may cause unrealistic melting behavior.  
+- Use a **temperature step** of 0.5–1.0 °C for optimal balance between speed and curve detail.  
+- Always check that your derivative peak aligns with the expected biological range.
+
+---
+
+## 🧱 Next Steps (Development Roadmap)
+Planned future features include:
+- 🧮 Configurable “Teaching Modes” (Basics, Variant ID, Dataset, Salt Dependence)  
+- 💾 Exportable datasets (CSV, PNG)  
+- ⚙️ JSON-based instructor configuration for automated lesson setup  
+- 🧫 Example sequence library for real-world variant demonstrations  
+
+---
+
+## 🧩 Summary
+The **DNA Melting Curve Simulator** offers an interactive way to connect DNA thermodynamics, base composition, and environmental effects to visual melting behavior.  
+Whether used for teaching, analysis, or modeling, it provides a clear and intuitive view of how DNA duplexes respond to changing temperature and ionic strength.
+
+---
+
+**Created for educational and research purposes — ideal for molecular biology, bioinformatics, and biotechnology teaching labs.**
