@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DNA Melting – Reference vs Simulation Tuner</title>
+  <style>
+    :root {
+      --bg: #0f172a; --panel: #111827; --muted: #9ca3af; --text: #e5e7eb; --accent: #38bdf8; --ok:#22c55e; --warn:#f97316; --err:#ef4444;
+    }
+    html,body{margin:0;height:100%;background:var(--bg);color:var(--text);font-family:ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial}
+    .wrap{max-width:1200px;margin:20px auto;padding:0 16px}
+    h1{margin:6px 0 2px;font-size:28px}
+    .sub{color:var(--muted);margin-bottom:18px}
+    .grid{display:grid;grid-template-columns:380px 1fr;gap:18px}
+    .card{background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.08);border-radius:16px}
+    .hd{padding:12px 14px;border-bottom:1px solid rgba(255,255,255,.06);font-weight:700;color:#cbd5e1}
+    .bd{padding:12px 14px}
+    label{display:block;font-size:12px;color:var(--muted);margin:10px 2px 6px}
+    select,input{width:100%;background:#0b1220;border:1px solid rgba(255,255,255,.1);color:var(--text);border-radius:12px;padding:9px 10px;font-size:14px}
+    .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+    .param-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:10px}
+    .param-field{display:flex;flex-direction:column}
+    .pill{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);padding:8px 10px;border-radius:12px;font-size:13px}
+    .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:8px}
+    .btn{cursor:pointer;display:inline-block;border:1px solid rgba(255,255,255,.12);background:linear-gradient(180deg,rgba(56,189,248,.25),rgba(56,189,248,.15));color:white;border-radius:12px;padding:9px 12px;font-weight:700}
+    .btn.secondary{background:linear-gradient(180deg,rgba(167,139,250,.2),rgba(167,139,250,.1))}
+    .note{font-size:12px;color:var(--muted)}
+    .err{color:#fecaca;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);padding:8px 10px;border-radius:10px;display:none}
+    canvas{width:100%;height:360px;background:#0b1220;border-radius:12px;border:1px solid rgba(255,255,255,.08);}
+    .legend{display:flex;gap:12px;margin:8px 0}
+    .lg{display:flex;align-items:center;gap:6px}
+    .dot{width:10px;height:10px;border-radius:50%}
+    .hr{height:1px;background:rgba(255,255,255,.08);margin:12px 0}
+    .rowEnd{display:flex;gap:10px;align-items:center;justify-content:flex-start;margin-top:8px}
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <h1>DNA Melting – Reference vs Simulation Tuner</h1>
+  <div class="sub">Load an experimental reference curve, pick a simulation algorithm from <code>meltingLib.js</code>, and tune parameters to match. Override the temperature axis to compare on a common grid.</div>
+  
+  <div class="grid">
+    <!-- Controls -->
+    <div class="card">
+      <div class="hd">Reference & Inputs</div>
+      <div class="bd">
+        <label>Reference dataset</label>
+        <select id="refSelect"></select>
+        <div class="note" id="seqMeta">—</div>
+        <div class="row2">
+          <div>
+            <label>[Na⁺] (M)</label>
+            <input id="Na" type="number" value="0.05" step="0.001" />
+          </div>
+          <div>
+            <label>[Mg²⁺] (M)</label>
+            <input id="Mg" type="number" value="0.001" step="0.0001" />
+          </div>
+        </div>
+        <div class="hr"></div>
+        <label>Simulation algorithm</label>
+        <select id="algo"></select>
+        <div id="paramControls" class="param-grid"></div>
+
+        <div class="row2" style="margin-top:8px;align-items:end">
+          <div>
+            <label>Override temperature range (°C)</label>
+            <div class="row2">
+              <input id="tmin" type="number" value="40" step="0.1" />
+              <input id="tmax" type="number" value="100" step="0.1" />
+            </div>
+          </div>
+          <div>
+            <label>Resolution (ΔT, °C)</label>
+            <input id="tstep" type="number" value="0.1" step="0.1" min="0.01" />
+          </div>
+        </div>
+
+        <div class="rowEnd">
+          <button class="btn secondary" id="reset">Reset params</button>
+          <span class="note">Simulations update automatically when settings change.</span>
+        </div>
+        <div id="err" class="err" style="margin-top:10px"></div>
+      </div>
+    </div>
+
+    <!-- Viz -->
+    <div class="card">
+      <div class="hd">Visualization</div>
+      <div class="bd">
+        <div class="legend">
+          <div class="lg"><span class="dot" style="background:#94a3b8"></span> Reference (experimental)</div>
+          <div class="lg"><span class="dot" style="background:#38bdf8"></span> Simulation</div>
+        </div>
+        <canvas id="plot" width="960" height="360"></canvas>
+        <div class="stats">
+          <div class="pill">Length: <span id="len">—</span></div>
+          <div class="pill">Ref T-range: <span id="trange">—</span></div>
+          <div class="pill">RMSE: <span id="rmse">—</span></div>
+          <div class="pill">MAE: <span id="mae">—</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Load data & library -->
+<script src="meltDNA_ref_curves.js"></script>
+<script src="meltingLib.js"></script>
+<script>
+(function(){
+  // ---------- Data ----------
+  let refData = window.refData || {};
+// Ensure at least one inline demo reference exists BEFORE building entries
+if (!refData || !Object.keys(refData).length) {
+  const demoSeq = "ATGCGTATGACCTGATCGATCGGATCCGATCGTACGATCGATCGTACGATCGATCGTACG"; // 60 nt demo
+  const temps = Array.from({length: 101}, (_, i) => 40 + i * 0.5); // 40..90 °C
+  const mid = 65, k = 1.2;
+  const fracs = temps.map(T => 1 / (1 + Math.exp(-(T - mid) / k)));
+  window.refData = refData = {
+    demo_1: {
+      sequence: demoSeq,
+      melting_curve: { temperature: temps, fraction_melted: fracs }
+    }
+  };
+}
+const entries = Object.entries(refData).map(([id, obj])=>({
+  id,
+  sequence: Array.isArray(obj.sequence)? (obj.sequence[0]||'') : (obj.sequence||''),
+  temps: obj.melting_curve?.temperature || [],
+  fracs: obj.melting_curve?.fraction_melted || []
+})).filter(e=> e.sequence && e.temps.length && e.fracs.length);
+
+  // ---------- Elements ----------
+  const refSel = document.getElementById('refSelect');
+  const seqMeta = document.getElementById('seqMeta');
+  const NaEl = document.getElementById('Na');
+  const MgEl = document.getElementById('Mg');
+  const algoEl = document.getElementById('algo');
+  const paramControlsEl = document.getElementById('paramControls');
+  const tminEl = document.getElementById('tmin');
+  const tmaxEl = document.getElementById('tmax');
+  const tstepEl = document.getElementById('tstep');
+  const plot = document.getElementById('plot');
+  const errEl = document.getElementById('err');
+  const lenEl = document.getElementById('len');
+  const trangeEl = document.getElementById('trange');
+  const rmseEl = document.getElementById('rmse');
+  const maeEl = document.getElementById('mae');
+
+  // ---------- Populate dropdowns ----------
+  for(const e of entries){
+    const opt = document.createElement('option');
+    opt.value = e.id; opt.textContent = e.id; refSel.appendChild(opt);
+  }
+  const algoList = (window.melt?.meta?.algorithms) || [];
+  if (!algoList.length) algoList.push({ key: 'independent', label: 'Independent' });
+  algoList.forEach((entry, i)=>{
+    const opt = document.createElement('option');
+    opt.value = entry?.key || '';
+    opt.textContent = entry?.label || entry?.key || `Algorithm ${i+1}`;
+    if(i===0) opt.selected = true;
+    algoEl.appendChild(opt);
+  });
+
+  // ---------- State ----------
+  let state = {
+    ref: null,          // {id, sequence, temps, fracs}
+    sim: null,          // {temps, fracs}
+    axisTemps: [],      // axis grid based on override
+  };
+  let runTimer = null;
+  const DEFAULT_TEMP_RANGE = { min: 40, max: 100, step: 0.1 };
+  const paramDefaults = {
+    window: 15,
+    k: 0.8,
+    cooperativity: 0.5,
+    L: 20,
+    piM: 0.5,
+    eps: 1e-6,
+    conc: 5e-7
+  };
+  const paramDefs = {
+    window: { label: 'Window', min: 5, max: 101, step: 2, default: 15 },
+    k: { label: 'Slope k', min: 0.05, max: 5, step: 0.05, default: 0.8 },
+    cooperativity: { label: 'Cooperativity', min: 0, max: 5, step: 0.1, default: 0.5 },
+    L: { label: 'Domain L', min: 2, max: 200, step: 1, default: 20 },
+    piM: { label: 'π<sub>M</sub>', min: 0, max: 1, step: 0.01, default: 0.5 },
+    eps: { label: 'ε', min: 1e-7, max: 1e-1, step: 1e-6, default: 1e-6 },
+    conc: { label: 'Strand conc (M)', max: 1e-3, step: 1e-7, default: 5e-7 }
+  };
+  const paramSchema = {
+    independent: ['window', 'k', 'conc'],
+    thermo: ['window', 'k', 'conc'],
+    polymer: ['conc'],
+    sigmoid: ['k', 'conc']
+  };
+  const paramState = { ...paramDefaults };
+
+  function scheduleRun(immediate = false) {
+    if (immediate) {
+      if (runTimer) clearTimeout(runTimer);
+      run();
+      return;
+    }
+    if (runTimer) clearTimeout(runTimer);
+    runTimer = setTimeout(run, 60);
+  }
+
+  function createParamField(key, def){
+    const wrapper = document.createElement('div');
+    wrapper.className = 'param-field';
+    const label = document.createElement('label');
+    label.innerHTML = def?.label || key;
+    const input = document.createElement('input');
+    input.type = 'number';
+    if(def?.step !== undefined) input.step = def.step;
+    if(def?.min !== undefined) input.min = def.min;
+    if(def?.max !== undefined) input.max = def.max;
+    const current = paramState[key] ?? def?.default ?? 0;
+    input.value = current;
+    const handler = (evt)=>{
+      if(input.value === ''){
+        if(evt.type === 'change'){
+          const fallback = def?.default ?? paramDefaults[key] ?? 0;
+          paramState[key] = fallback;
+          input.value = fallback;
+          scheduleRun();
+        }
+        return;
+      }
+      let val = parseFloat(input.value);
+      if(!Number.isFinite(val)) return;
+      if(typeof def?.min === 'number') val = Math.max(def.min, val);
+      if(typeof def?.max === 'number') val = Math.min(def.max, val);
+      paramState[key] = val;
+      input.value = val;
+      scheduleRun();
+    };
+    input.addEventListener('input', handler);
+    input.addEventListener('change', handler);
+    wrapper.appendChild(label);
+    wrapper.appendChild(input);
+    return wrapper;
+  }
+
+  function renderParamControls(algo){
+    paramControlsEl.innerHTML = '';
+    const keys = paramSchema[algo] || [];
+    if(!keys.length){
+      const msg = document.createElement('div');
+      msg.className = 'note';
+      msg.style.gridColumn = '1 / -1';
+      msg.textContent = 'No adjustable parameters for this algorithm.';
+      paramControlsEl.appendChild(msg);
+      return;
+    }
+    keys.forEach(key=>{
+      const def = paramDefs[key];
+      if(!def) return;
+      paramControlsEl.appendChild(createParamField(key, def));
+    });
+  }
+
+  function resetParamsToDefaults(){
+    Object.keys(paramDefaults).forEach(key=> paramState[key] = paramDefaults[key]);
+    renderParamControls(algoEl.value);
+  }
+
+  // ---------- Helpers ----------
+  function initRef(id){
+    const e = entries.find(x=>x.id===id) || entries[0];
+    state.ref = e;
+    const minT = Math.min(...e.temps), maxT = Math.max(...e.temps);
+    if(!tminEl.value) tminEl.value = DEFAULT_TEMP_RANGE.min.toFixed(1);
+    if(!tmaxEl.value) tmaxEl.value = DEFAULT_TEMP_RANGE.max.toFixed(1);
+    lenEl.textContent = e.sequence.length;
+    trangeEl.textContent = `${minT.toFixed(1)}–${maxT.toFixed(1)} °C`;
+    seqMeta.textContent = `${e.id} • ${e.sequence.length} nt`;
+    rebuildAxis();
+    draw();
+  }
+
+  function rebuildAxis(){
+    const refTemps = state.ref?.temps || [];
+    const refMin = refTemps.length ? Math.min(...refTemps) : DEFAULT_TEMP_RANGE.min;
+    const refMax = refTemps.length ? Math.max(...refTemps) : DEFAULT_TEMP_RANGE.max;
+    const tmin = safeNum(tminEl.value, refMin, DEFAULT_TEMP_RANGE.min);
+    let tmax = safeNum(tmaxEl.value, refMax, DEFAULT_TEMP_RANGE.max);
+    const stepInput = safeNum(tstepEl.value, DEFAULT_TEMP_RANGE.step, DEFAULT_TEMP_RANGE.step);
+    const step = Math.max(0.01, stepInput);
+    if (tmax <= tmin) tmax = tmin + step;
+    const n = Math.max(2, Math.floor((tmax - tmin)/step) + 1);
+    state.axisTemps = Array.from({length:n}, (_,i)=> tmin + i*step);
+  }
+
+  function safeNum(v, fallback, hardDefault){
+    const defaultVal = Number.isFinite(fallback) ? fallback : hardDefault;
+    const x = parseFloat(v);
+    return Number.isFinite(x) ? x : defaultVal;
+  }
+
+  function interpToGrid(srcX, srcY, tgtX){
+    if(!srcX.length || !tgtX.length) return [];
+    const out=[]; let j=0;
+    for(const x of tgtX){
+      while(j < srcX.length-1 && srcX[j+1] < x) j++;
+      if(x <= srcX[0]) out.push(srcY[0]);
+      else if(x >= srcX[srcX.length-1]) out.push(srcY[srcY.length-1]);
+      else {
+        const x0=srcX[j], x1=srcX[j+1], y0=srcY[j], y1=srcY[j+1];
+        const t=(x-x0)/(x1-x0); out.push(y0 + t*(y1-y0));
+      }
+    }
+    return out;
+  }
+
+  function computeMetrics(ref, sim){
+    const n = Math.min(ref.length, sim.length);
+    if(!n) return {rmse:NaN, mae:NaN};
+    let se=0, ae=0, m=0;
+    for(let i=0;i<n;i++){
+      const r=ref[i], s=sim[i];
+      if(Number.isFinite(r) && Number.isFinite(s)){
+        const d=r-s; se+=d*d; ae+=Math.abs(d); m++;
+      }
+    }
+    return {rmse: m? Math.sqrt(se/m):NaN, mae: m? ae/m:NaN};
+  }
+
+  // ---------- Drawing ----------
+  function draw(){
+    const ctx = plot.getContext('2d');
+    const W=plot.width, H=plot.height;
+    ctx.clearRect(0,0,W,H);
+
+    const left=48, right=W-16, top=16, bot=H-34;
+    ctx.strokeStyle='rgba(255,255,255,.2)';
+    ctx.strokeRect(left, top, right-left, bot-top);
+
+    const temps = state.axisTemps.length ? state.axisTemps : (state.ref?.temps || []);
+    if(!temps.length) return;
+    const Tmin = Math.min(...temps), Tmax = Math.max(...temps);
+    const xs = T=> left + (right-left) * ((T - Tmin) / (Tmax - Tmin));
+    const ys = y=> bot - (bot-top) * y; // y in [0,1]
+
+    // X ticks & labels
+    ctx.fillStyle='#9ca3af'; ctx.font='12px ui-sans-serif'; ctx.textAlign='center';
+    for(let i=0;i<=5;i++){
+      const T = Tmin + (i/5)*(Tmax-Tmin); const x = xs(T);
+      ctx.fillText(T.toFixed(1), x, H-12);
+      ctx.beginPath(); ctx.moveTo(x, bot); ctx.lineTo(x, bot+4); ctx.stroke();
+    }
+    // Y ticks 0..1
+    ctx.textAlign='right';
+    for(let i=0;i<=5;i++){
+      const yv = i/5; const y = ys(yv);
+      ctx.fillText(yv.toFixed(1), left-6, y+4);
+      ctx.beginPath(); ctx.moveTo(left-4, y); ctx.lineTo(left, y); ctx.stroke();
+    }
+
+    // Reference curve (sampled to axis grid for smoothness)
+    if(state.ref){
+      const rY = interpToGrid(state.ref.temps, state.ref.fracs, temps);
+      ctx.strokeStyle = '#94a3b8'; ctx.lineWidth=2; ctx.beginPath();
+      for(let i=0;i<temps.length;i++){
+        const x=xs(temps[i]), y=ys(rY[i]);
+        if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+      }
+      ctx.stroke();
+      // reference points at original positions
+      ctx.fillStyle='#cbd5e1';
+      for(let i=0;i<state.ref.temps.length;i++){
+        const x=xs(state.ref.temps[i]), y=ys(state.ref.fracs[i]);
+        ctx.beginPath(); ctx.arc(x,y,2.3,0,Math.PI*2); ctx.fill();
+      }
+    }
+
+    // Simulated curve
+    if(state.sim?.temps?.length){
+      const sT = state.sim.temps, sY = state.sim.fracs;
+      ctx.strokeStyle = '#38bdf8'; ctx.lineWidth=2.2; ctx.beginPath();
+      for(let i=0;i<sT.length;i++){
+        const x=xs(sT[i]), y=ys(sY[i]);
+        if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+      }
+      ctx.stroke();
+    }
+
+  }
+
+  // ---------- Simulation ----------
+  function run(){
+    if (runTimer) {
+      clearTimeout(runTimer);
+      runTimer = null;
+    }
+    try{
+      errEl.style.display='none';
+      if(!state.ref) throw new Error('No reference selected.');
+
+      rebuildAxis();
+      const temps = state.axisTemps.slice();
+      if (!temps.length) {
+        state.sim = { temps: [], fracs: [] };
+        draw();
+        return;
+      }
+
+      // conditions: UI values are molar; pass through directly
+      const Na = safeNum(NaEl.value, 0.05, 0.05);
+      const Mg = safeNum(MgEl.value, 0.001, 0.001);
+      const conditions = { Na, Mg };
+
+      const params = { ...paramState };
+
+      const algo = algoEl.value || (algoList[0]?.key) || 'independent';
+      const seq = state.ref.sequence;
+      const sim = melt.run({
+        id: algo,
+        sequence: seq,
+        temperatures: temps,
+        conditions,
+        params,
+        options: {}
+      }) || {};
+
+      state.sim = {
+        temps: sim.temperatures || temps,
+        fracs: sim.fractionMelted || new Array(temps.length).fill(NaN)
+      };
+
+      // compute metrics on the axis grid
+      const refOnAxis = interpToGrid(state.ref.temps, state.ref.fracs, state.axisTemps);
+      const {rmse, mae} = computeMetrics(refOnAxis, state.sim.fracs);
+      rmseEl.textContent = Number.isFinite(rmse)? rmse.toFixed(4) : '—';
+      maeEl.textContent = Number.isFinite(mae)? mae.toFixed(4) : '—';
+
+      draw();
+    }catch(err){
+      console.error(err);
+      errEl.textContent = err.message || String(err);
+      errEl.style.display='block';
+    }
+  }
+
+  // ---------- Interactions ----------
+
+  document.getElementById('reset').addEventListener('click', ()=>{
+    NaEl.value=0.05; MgEl.value=0.001;
+    resetParamsToDefaults();
+    tminEl.value = DEFAULT_TEMP_RANGE.min.toFixed(1);
+    tmaxEl.value = DEFAULT_TEMP_RANGE.max.toFixed(1);
+    tstepEl.value = DEFAULT_TEMP_RANGE.step;
+    scheduleRun(true);
+  });
+
+  // live updates for axis controls
+  [tminEl,tmaxEl,tstepEl].forEach(el=>{
+    const handler = ()=> scheduleRun();
+    el.addEventListener('input', handler);
+    el.addEventListener('change', handler);
+  });
+
+  const conditionInputs = [NaEl, MgEl];
+  conditionInputs.forEach(el=>{
+    const handler = ()=> scheduleRun();
+    el.addEventListener('input', handler);
+    el.addEventListener('change', handler);
+  });
+
+  refSel.addEventListener('change', ()=>{
+    initRef(refSel.value);
+    scheduleRun(true);
+  });
+
+  algoEl.addEventListener('change', ()=>{
+    renderParamControls(algoEl.value);
+    scheduleRun();
+  });
+
+  renderParamControls(algoEl.value);
+
+  // ---------- Init ----------
+  if(entries.length){
+    initRef(entries[0].id);
+    refSel.value = entries[0].id;
+    scheduleRun(true);
+  } else {
+    document.getElementById('err').textContent = 'No valid reference entries found in data file.';
+    document.getElementById('err').style.display = 'block';
+  }
+})();
+</script>
+<!-- Inline fallback so the app shows data immediately -->
+<script>
+// If no refData is present from meltDNA_ref_curves.js, seed one example
+(function(){
+  try{
+    if(!(window.refData && Object.keys(window.refData).length)){
+      window.refData = window.refData || {};
+      window.refData["seq_25_A_1"] = {"sequence":["GGATTTTATTTTGATGCATTGACGATAGATTTATATAAGTAAACACTTCTAAATATTAATTCTTTAATTAAAATATAATATAATTTAAAATAAGGTATTT"],"melting_curve":{"temperature":[40,40.1,40.2,40.3,40.4,40.5,40.6,40.7,40.8,40.9,41,41.1,41.2,41.3,41.4,41.5,41.6,41.7,41.8,41.9,42,42.1,42.2,42.3,42.4,42.5,42.6,42.7,42.8,42.9,43,43.1,43.2,43.3,43.4,43.5,43.6,43.7,43.8,43.9,44,44.1,44.2,44.3,44.4,44.5,44.6,44.7,44.8,44.9,45,45.1,45.2,45.3,45.4,45.5,45.6,45.7,45.8,45.9,46,46.1,46.2,46.3,46.4,46.5,46.6,46.7,46.8,46.9,47,47.1,47.2,47.3,47.4,47.5,47.6,47.7,47.8,47.9,48,48.1,48.2,48.3,48.4,48.5,48.6,48.7,48.8,48.9,49,49.1,49.2,49.3,49.4,49.5,49.6,49.7,49.8,49.9,50,50.1,50.2,50.3,50.4,50.5,50.6,50.7,50.8,50.9,51,51.1,51.2,51.3,51.4,51.5,51.6,51.7,51.8,51.9,52,52.1,52.2,52.3,52.4,52.5,52.6,52.7,52.8,52.9,53,53.1,53.2,53.3,53.4,53.5,53.6,53.7,53.8,53.9,54,54.1,54.2,54.3,54.4,54.5,54.6,54.7,54.8,54.9,55,55.1,55.2,55.3,55.4,55.5,55.6,55.7,55.8,55.9,56,56.1,56.2,56.3,56.4,56.5,56.6,56.7,56.8,56.9,57,57.1,57.2,57.3,57.4,57.5,57.6,57.7,57.8,57.9,58,58.1,58.2,58.3,58.4,58.5,58.6,58.7,58.8,58.9,59,59.1,59.2,59.3,59.4,59.5,59.6,59.7,59.8,59.9,60,60.1,60.2,60.3,60.4,60.5,60.6,60.7,60.8,60.9,61,61.1,61.2,61.3,61.4,61.5,61.6,61.7,61.8,61.9,62,62.1,62.2,62.3,62.4,62.5,62.6,62.7,62.8,62.9,63,63.1,63.2,63.3,63.4,63.5,63.6,63.7,63.8,63.9,64,64.1,64.2,64.3,64.4,64.5,64.6,64.7,64.8,64.9,65,65.1,65.2,65.3,65.4,65.5,65.6,65.7,65.8,65.9,66,66.1,66.2,66.3,66.4,66.5,66.6,66.7,66.8,66.9,67,67.1,67.2,67.3,67.4,67.5,67.6,67.7,67.8,67.9,68,68.1,68.2,68.3,68.4,68.5,68.6,68.7,68.8,68.9,69,69.1,69.2,69.3,69.4,69.5,69.6,69.7,69.8,69.9,70,70.1,70.2,70.3,70.4,70.5,70.6,70.7,70.8,70.9,71,71.1,71.2,71.3,71.4,71.5,71.6,71.7,71.8,71.9,72,72.1,72.2,72.3,72.4,72.5,72.6,72.7,72.8,72.9,73,73.1,73.2,73.3,73.4,73.5,73.6,73.7,73.8,73.9,74,74.1,74.2,74.3,74.4,74.5,74.6,74.7,74.8,74.9,75,75.1,75.2,75.3,75.4,75.5,75.6,75.7,75.8,75.9,76,76.1,76.2,76.3,76.4,76.5,76.6,76.7,76.8,76.9,77,77.1,77.2,77.3,77.4,77.5,77.6,77.7,77.8,77.9,78,78.1,78.2,78.3,78.4,78.5,78.6,78.7,78.8,78.9,79,79.1,79.2,79.3,79.4,79.5,79.6,79.7,79.8,79.9,80,80.1,80.2,80.3,80.4,80.5,80.6,80.7,80.8,80.9,81,81.1,81.2,81.3,81.4,81.5,81.6,81.7,81.8,81.9,82,82.1,82.2,82.3,82.4,82.5,82.6,82.7,82.8,82.9,83,83.1,83.2,83.3,83.4,83.5,83.6,83.7,83.8,83.9,84,84.1,84.2,84.3,84.4,84.5,84.6,84.7,84.8,84.9,85,85.1,85.2,85.3,85.4,85.5,85.6,85.7,85.8,85.9,86,86.1,86.2,86.3,86.4,86.5,86.6,86.7,86.8,86.9,87,87.1,87.2,87.3,87.4,87.5,87.6,87.7,87.8,87.9,88,88.1,88.2,88.3,88.4,88.5,88.6,88.7,88.8,88.9,89,89.1,89.2,89.3,89.4,89.5,89.6,89.7,89.8,89.9,90,90.1,90.2,90.3,90.4,90.5,90.6,90.7,90.8,90.9,91,91.1,91.2,91.3,91.4,91.5,91.6,91.7,91.8,91.9,92,92.1,92.2,92.3,92.4,92.5,92.6,92.7,92.8,92.9,93,93.1,93.2,93.3,93.4,93.5,93.6,93.7,93.8,93.9,94,94.1,94.2,94.3,94.4,94.5,94.6,94.7,94.8,94.9,95,95.1,95.2,95.3,95.4,95.5,95.6,95.7,95.8,95.9,96,96.1,96.2,96.3,96.4,96.5,96.6,96.7,96.8,96.9,97,97.1,97.2,97.3,97.4,97.5,97.6,97.7,97.8,97.9,98,98.1,98.2,98.3,98.4,98.5,98.6,98.7,98.8,98.9,99,99.1,99.2,99.3,99.4,99.5,99.6,99.7,99.8,99.9,100],"fraction_melted":[0.0087,0.0088,0.0089,0.009,0.0091,0.0091,0.0092,0.0093,0.0094,0.0095,0.0096,0.0097,0.0098,0.0098,0.0099,0.01,0.0101,0.0102,0.0103,0.0104,0.0105,0.0106,0.0107,0.0108,0.0109,0.011,0.0111,0.0112,0.0113,0.0114,0.0115,0.0116,0.0117,0.0118,0.0119,0.012,0.0121,0.0122,0.0123,0.0124,0.0125,0.0126,0.0127,0.0128,0.0129,0.013,0.0131,0.0132,0.0133,0.0134,0.0135,0.0136,0.0137,0.0138,0.0139,0.014,0.0141,0.0142,0.0143,0.0144,0.0145,0.0146,0.0147,0.0148,0.0149,0.015,0.0151,0.0152,0.0153,0.0154,0.0155,0.0156,0.0157,0.0158,0.0159,0.016,0.0161,0.0162,0.0163,0.0164,0.0165,0.0166,0.0167,0.0168,0.0169,0.017,0.0171,0.0172,0.0173,0.0174,0.0175,0.0176,0.0177,0.0178,0.0179,0.018,0.0181,0.0182,0.0183,0.0184,0.0185,0.0186,0.0187,0.0188,0.0189,0.019,0.0191,0.0192,0.0193,0.0194,0.0195,0.0196,0.0197,0.0198,0.0199,0.02,0.0201,0.0202,0.0203,0.0204,0.0205,0.0206,0.0207,0.0208,0.0209,0.021,0.0211,0.0212,0.0213,0.0214,0.0215,0.0216,0.0217,0.0218,0.0219,0.022,0.0221,0.0222,0.0223,0.0224,0.0225,0.0226,0.0227,0.0228,0.0229,0.023,0.0231,0.0232,0.0233,0.0234,0.0235,0.0236,0.0237,0.0238,0.0239,0.024,0.0241,0.0242,0.0243,0.0244,0.0245,0.0246,0.0247,0.0248,0.0249,0.025,0.0251,0.0252,0.0253,0.0254,0.0255,0.0256,0.0257,0.0258,0.0259,0.026,0.0261,0.0262,0.0263,0.0264,0.0265,0.0266,0.0267,0.0268,0.0269,0.027,0.0271,0.0272,0.0273,0.0274,0.0275,0.0276,0.0277,0.0278,0.0279,0.028,0.0281,0.0282,0.0283,0.0284,0.0285,0.0286,0.0287,0.0288,0.0289,0.029,0.0291,0.0292,0.0293,0.0294,0.0295,0.0296,0.0297,0.0298,0.0299,0.03,0.0301,0.0302,0.0303,0.0304,0.0305,0.0306,0.0307,0.0308,0.0309,0.031,0.0311,0.0312,0.0313,0.0314,0.0315,0.0316,0.0317,0.0318,0.0319,0.032,0.0321,0.0322,0.0323,0.0324,0.0325,0.0326,0.0327,0.0328,0.0329,0.033,0.0331,0.0332,0.0333,0.0334,0.0335,0.0336,0.0337,0.0338,0.0339,0.034,0.0341,0.0342,0.0343,0.0344,0.0345,0.0346,0.0347,0.0348,0.0349,0.035,0.0351,0.0352,0.0353,0.0354,0.0355,0.0356,0.0357,0.0358,0.0359,0.036,0.0361,0.0362,0.0363,0.0364,0.0365,0.0366,0.0367,0.0368,0.0369,0.037,0.0371,0.0372,0.0373,0.0374,0.0375,0.0376,0.0377,0.0378,0.0379,0.038,0.0381,0.0382,0.0383,0.0384,0.0385,0.0386,0.0387,0.0388,0.0389,0.039,0.0391,0.0392,0.0393,0.0394,0.0395,0.0396,0.0397,0.0398,0.0399,0.04,0.0401,0.0402,0.0403,0.0404,0.0405,0.0406,0.0407,0.0408,0.0409,0.041,0.0411,0.0412,0.0413,0.0414,0.0415,0.0416,0.0417,0.0418,0.0419,0.042,0.0421,0.0422,0.0423,0.0424,0.0425,0.0426,0.0427,0.0428,0.0429,0.043,0.0431,0.0432,0.0433,0.0434,0.0435,0.0436,0.0437,0.0438,0.0439,0.044,0.0441,0.0442,0.0443,0.0444,0.0445,0.0446,0.0447,0.0448,0.0449,0.045,0.0451,0.0452,0.0453,0.0454,0.0455,0.0456,0.0457,0.0458,0.0459,0.046,0.0461,0.0462,0.0463,0.0464,0.0465,0.0466,0.0467,0.0468,0.0469,0.047,0.0471,0.0472,0.0473,0.0474,0.0475,0.0476,0.0477,0.0478,0.0479,0.048,0.0481,0.0482,0.0483,0.0484,0.0485,0.0486,0.0487,0.0488,0.0489,0.049,0.0491,0.0492,0.0493,0.0494,0.0495,0.0496,0.0497,0.0498,0.0499,0.05,0.0501,0.0502,0.0503,0.0504,0.0505,0.0506,0.0507,0.0508,0.0509,0.051,0.0511,0.0512,0.0513,0.0514,0.0515,0.0516,0.0517,0.0518,0.0519,0.052,0.0521,0.0522,0.0523,0.0524,0.0525,0.0526,0.0527,0.0528,0.0529,0.053,0.0531,0.0532,0.0533,0.0534,0.0535,0.0536,0.0537,0.0538,0.0539,0.054,0.0541,0.0542,0.0543,0.0544,0.0545,0.0546,0.0547,0.0548,0.0549,0.055,0.0551,0.0552,0.0553,0.0554,0.0555,0.0556,0.0557,0.0558,0.0559,0.056,0.0561,0.0562,0.0563,0.0564,0.0565,0.0566,0.0567,0.0568,0.0569,0.057,0.0571,0.0572,0.0573,0.0574,0.0575,0.0576,0.0577,0.0578,0.0579,0.058,0.0581,0.0582,0.0583,0.0584,0.0585,0.0586,0.0587,0.0588,0.0589,0.059,0.0591,0.0592,0.0593,0.0594,0.0595,0.0596,0.0597,0.0598,0.0599,0.06,0.0601,0.0602,0.0603,0.0604,0.0605,0.0606,0.0607,0.0608,0.0609,0.061,0.0611,0.0612,0.0613,0.0614,0.0615,0.0616,0.0617,0.0618,0.0619,0.062,0.0621,0.0622,0.0623,0.0624,0.0625,0.0626,0.0627,0.0628,0.0629,0.063,0.0631,0.0632,0.0633,0.0634,0.0635,0.0636,0.0637,0.0638,0.0639,0.064,0.0641,0.0642,0.0643,0.0644,0.0645,0.0646,0.0647,0.0648,0.0649,0.065,0.0651,0.0652,0.0653,0.0654,0.0655,0.0656,0.0657,0.0658,0.0659,0.066,0.0661,0.0662,0.0663,0.0664,0.0665,0.0666,0.0667,0.0668,0.0669,0.067,0.0671,0.0672,0.0673,0.0674,0.0675,0.0676,0.0677,0.0678,0.0679,0.068,0.0681,0.0682,0.0683,0.0684,0.0685,0.0686,0.0687,0.0688,0.0689,0.069,0.0691,0.0692,0.0693,0.0694,0.0695,0.0696,0.0697,0.0698,0.0699,0.07]}}
+    }
+  }catch(e){ console.warn('refData fallback failed', e); }
+})();
+
+// Provide a minimal melt library if meltingLib.js isn't present
+(function(){
+  if(!window.melt){
+    window.melt = {
+      meta:{ algorithms:[{key:'independent', label:'Independent (stub)'}]},
+      run: function({id, sequence, temperatures, conditions, params}){
+        // Simple logistic model centered near 60°C; k controls slope
+        const Tmin = Math.min.apply(null, temperatures);
+        const Tmax = Math.max.apply(null, temperatures);
+        const mid = 0.6*(Tmax-Tmin)+Tmin; // ~60% of range
+        const k = Math.max(0.05, Math.min(5, (params?.k ?? 0.8)));
+        const fracs = temperatures.map(T=> 1/(1+Math.exp(-(T - mid)/k)));
+        return { temperatures:[...temperatures], fractionMelted: fracs };
+      }
+    };
+  }
+})();
+</script>
+</body>
+</html>
