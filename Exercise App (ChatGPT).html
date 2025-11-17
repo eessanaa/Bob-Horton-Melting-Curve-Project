@@ -266,7 +266,8 @@
 
     function draw(){
       const dpr = window.devicePixelRatio || 1;
-      const cssW = canvas.clientWidth, cssH = canvas.clientHeight;
+      const cssW = canvas.clientWidth || 600;
+      const cssH = canvas.clientHeight || 320;
       if (canvas.width !== Math.floor(cssW*dpr) || canvas.height !== Math.floor(cssH*dpr)){
         canvas.width = Math.floor(cssW*dpr); canvas.height= Math.floor(cssH*dpr);
       }
@@ -331,8 +332,9 @@
 
     tempEl.addEventListener('input', ()=>{ document.getElementById('tLabel').textContent = tempEl.value; draw(); });
     window.addEventListener('resize', ()=>{ draw(); });
-    // extra: observe element size changes to avoid black canvas on layout shifts
-    new ResizeObserver(()=> draw()).observe(canvas.parentElement);
+    if (window.ResizeObserver) {
+      new ResizeObserver(()=> draw()).observe(canvas.parentElement);
+    }
   })();
 
   /* =====================================
@@ -685,8 +687,6 @@
    * 3) (Optional) Simple internal cross‑check
    *    Not uMelt — but a secondary Tm estimator to sanity‑check
    * ===================================== */
-  // For now we use the same NN model with a coarse sweep — serves as a consistency check.
-  // Hook available as window.CrossCheck.estimateDelta(seqA, seqB)
   (function(){
     function estimateDelta(seqA, seqB){
       try {
