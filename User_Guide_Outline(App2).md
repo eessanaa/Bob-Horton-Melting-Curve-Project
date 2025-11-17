@@ -1,7 +1,7 @@
 # 🧬 DNA Melting Curve Simulator — User Guide  
 *(App 1: Nearest-Neighbor + HMM Model)*  
 
-## 📖 Overview  
+## Overview  
 The **DNA Melting Curve Simulator** is an interactive tool that visualizes how double-stranded DNA separates (“melts”) as temperature increases.  
 It uses the **SantaLucia nearest-neighbor thermodynamic model** to estimate melting temperature (Tm) and allows optional smoothing through **Hidden Markov Model (HMM)** inference.  
 
@@ -360,3 +360,4 @@ Perfect for use in **molecular biology**, **bioinformatics**, and **biotechnolog
 ---
 
 **Created for educational and research purposes — bridging DNA thermodynamics and 
+
