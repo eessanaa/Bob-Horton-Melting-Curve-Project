@@ -1,5 +1,5 @@
 # 🧬 DNA Melting Curve Simulator — User Guide  
-*(App 1: Nearest-Neighbor + HMM Model)*  
+*(App 2: Nearest-Neighbor + HMM Model)*  
 
 ## Overview  
 The **DNA Melting Curve Simulator** is an interactive tool that visualizes how double-stranded DNA separates (“melts”) as temperature increases.  
@@ -358,6 +358,7 @@ By modifying simple inputs like sequence and salt concentration, users see in re
 Perfect for use in **molecular biology**, **bioinformatics**, and **biotechnology** education or research.
 
 ---
+
 
 
 
