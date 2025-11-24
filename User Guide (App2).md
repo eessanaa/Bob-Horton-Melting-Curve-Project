@@ -359,5 +359,6 @@ Perfect for use in **molecular biology**, **bioinformatics**, and **biotechnolog
 
 ---
 
-**Created for educational and research purposes — bridging DNA thermodynamics and 
+
+
 
