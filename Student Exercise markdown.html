@@ -1,0 +1,333 @@
+---
+title: "Student Exercise — DNA Melting Curves"
+author: "Bob Horton Group"
+date: "`December 12, 2025`"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+---
+
+<!-- FORCE FLOATING TOC / LEGEND TEXT TO BE NON-BOLD -->
+<style>
+  #TOC,
+  #TOC * {
+    font-weight: normal !important;
+  }
+</style>
+
+---
+
+# 🧬 **1. Overview** <a name="overview"></a>
+
+This exercise introduces students to the fundamentals of **DNA melting behavior** and how melting curves are interpreted in molecular biology and diagnostics.  
+
+Students will learn how DNA transitions from **double-stranded (dsDNA)** to **single-stranded (ssDNA)** with increasing temperature, and how melting curves are used in PCR analysis, high-resolution melting (HRM), variant detection, and DNA stability studies.
+
+All curves illustrated in this exercise are generated using **nearest-neighbor thermodynamic models**, allowing clear conceptual learning without experimental noise.
+
+---
+
+# 🎯 **2. Purpose** <a name="purpose"></a>
+
+This exercise helps students:
+
+- Understand how melting curves arise from **thermodynamic DNA models**  
+- Identify key melting curve features:
+  - baseline  
+  - transition region  
+  - Tm (melting temperature)  
+- Compare melting curves across:
+  - short vs long DNA  
+  - AT-rich vs GC-rich amplicons  
+- Interpret derivative curves (–dF/dT)  
+- Connect melting behavior to real-world applications in PCR and HRM  
+
+---
+
+# 🧪 **3. Exercise Scenario** <a name="exercise-scenario"></a>
+
+You are assisting a new member in a virology or PCR workflow lab. They are struggling to interpret melting curves from both **real experimental runs** and the **simulator**.
+
+Your job is to:
+
+- analyze several melting curves  
+- label key curve regions  
+- determine Tm  
+- compare short vs long DNA  
+- compare GC-rich vs AT-rich amplicons  
+- explain melting behavior in clear, simple terms  
+
+By the end of the exercise, you should be able to accurately interpret melting curves for a wide variety of DNA sequences.
+
+---
+
+# 📚 **4. Background Concepts** <a name="background-concepts"></a>
+
+## **4.1 What a Melting Curve Represents** <a name="41-what-a-melting-curve-represents"></a>
+
+A DNA melting curve shows how a population of DNA molecules changes from **fully double-stranded** to **fully single-stranded** as temperature increases.
+
+The simulator reports **Fraction Melted**, ranging from:
+
+- **0.0 → fully dsDNA**  
+- **1.0 → fully ssDNA**
+
+Plotting Fraction Melted vs Temperature produces a **sigmoidal (S-shaped)** curve with three characteristic regions.
+
+---
+
+## **4.2 How Melting Curves Are Generated** <a name="42-how-melting-curves-are-generated"></a>
+
+Melting occurs in three major stages:
+
+### **1. Low-Temperature Baseline**  
+DNA remains fully double-stranded  
+Fraction Melted ≈ 0  
+
+### **2. Cooperative Transition Region**  
+Local regions begin to denature  
+Melting in one region destabilizes nearby regions → steep slope  
+
+### **3. High-Temperature Plateau**  
+DNA is fully melted  
+Fraction Melted approaches 1  
+
+Underlying calculations use the **SantaLucia nearest-neighbor model**, which sums enthalpy/entropy contributions of adjacent nucleotide pairs.
+
+---
+
+## **4.3 Melting Temperature (Tm)** <a name="43-melting-temperature-tm"></a>
+
+**Tm is the temperature at which 50% of the population is melted.**
+
+- On the melting curve → Fraction Melted ≈ 0.5  
+- On the derivative curve → corresponds to the **peak**
+
+Higher Tm → more stable sequence  
+Lower Tm → less stable sequence  
+
+---
+
+## **4.4 GC vs AT Melting Behavior** <a name="44-gc-vs-at-melting-behavior"></a>
+
+GC content has a strong effect on stability:
+
+- **GC base pairs (3 H-bonds)** → higher stability  
+- **AT base pairs (2 H-bonds)** → lower stability  
+
+Therefore:
+
+- GC-rich sequences melt at **higher temperatures**  
+- AT-rich sequences melt at **lower temperatures**  
+
+---
+
+## **4.5 Short vs Long DNA** <a name="45-short-vs-long-dna"></a>
+
+### **Short DNA (<100 bp)**  
+- Melts in one cooperative step  
+- Single, smooth sigmoidal curve  
+- One derivative peak  
+
+### **Long DNA (>200 bp)**  
+- Contains multiple regions with different GC content  
+- AT-rich regions melt first  
+- GC-rich regions melt later  
+- Produces **multi-phase** melting  
+
+Derivative curves may show **2 or more peaks**, each representing a melting domain.
+
+---
+
+## **4.6 Multiple Melting Domains** <a name="46-multiple-melting-domains"></a>
+
+Longer DNA often melts in distinct phases:
+
+- early melting of AT-rich domains  
+- later melting of GC-rich domains  
+
+This results in:
+
+- multi-step melting curves  
+- visible shoulders  
+- multiple derivative peaks  
+
+---
+
+## **4.7 First-Derivative Curves (–dF/dT)** <a name="47-first-derivative-curves"></a>
+
+Derivative curves highlight:
+
+- where melting occurs most rapidly  
+- approximate Tm  
+- number of melting domains  
+
+Short DNA → single sharp peak  
+Long DNA → multiple peaks  
+
+---
+
+## **4.8 Factors Influencing Melting** <a name="48-factors-influencing-melting"></a>
+
+Several conditions shift melting curves:
+
+| Factor | Effect |
+|--------|--------|
+| ↑ Na⁺ | stabilizes dsDNA → ↑ Tm |
+| ↑ Mg²⁺ | strong stabilization → ↑↑ Tm |
+| DMSO / formamide | destabilize dsDNA → ↓ Tm |
+| Mismatches | biologically lower Tm (but **not modeled** here) |
+| Repeats/homopolymers | tend to melt more uniformly |
+
+---
+
+## **4.9 High-Resolution Melting (HRM)** <a name="49-high-resolution-melting-hrm"></a>
+
+HRM can detect extremely small sequence differences (e.g., SNPs) by analyzing:
+
+- subtle shifts in Tm  
+- changes in curve shape  
+
+Even a **single nucleotide change** may alter the melting curve.
+
+---
+
+# 🖼️ **5. Example Melting Curve** <a name="example-melting-curve"></a>
+
+![Simulated DNA Melting Curve](melting_curve.png)
+
+Key features illustrated:
+
+- **flat baseline** at low temperature  
+- **steep cooperative rise**  
+- **high-temperature plateau**  
+
+---
+
+# 🧬 **6. FASTA Files Provided** <a name="fasta-files"></a>
+
+The exercise includes several **FASTA files**, which contain DNA sequences used for melting-curve analysis:
+
+- `influenza_HA_full_sequences.fasta`  
+- `influenza_HA_amplicon_aligned.fasta`  
+- `influenza_HA_amplicon_ungapped.fasta`  
+- `clustalo-I20251201...aln-fasta`
+
+These files allow students to:
+
+- load real viral sequences  
+- compare melting behaviors across strains  
+- study GC% variation  
+- understand how alignment affects melting  
+
+FASTA format consists of:
+>Header describing the sequence  
+ACGTACGTACGT...
+
+Students may use these sequences in Tasks 1–4.
+---
+
+# 📝 **7. Student Tasks** <a name="student-tasks"></a>
+
+### **Task 1 — Visualize Melting Curves**
+Plot melting curves for:
+
+- **Sequence A (short, <100 bp)**  
+- **Sequence B (long, >200 bp)**  
+
+Label:
+
+- low-temperature baseline  
+- cooperative transition region(s)  
+- Tm or derivative peaks  
+
+---
+
+### **Task 2 — Determine the Tm**
+For each curve:
+
+- identify temperature where Fraction Melted ≈ 0.5 (single-domain curves)  
+- OR identify the major derivative peak (multi-domain curves)  
+- compare Tm values across sequences  
+
+---
+
+### **Task 3 — Compare Short vs Long Melting Behavior**
+Explain:
+
+1. Why short DNA melts in one smooth cooperative step  
+2. Why long DNA often has multiple melting transitions  
+3. How derivative peaks correspond to distinct melting domains  
+
+---
+
+### **Task 4 — Compare AT-Rich vs GC-Rich Amplicons**
+
+Given two melting curves:
+
+- **Curve A → AT-rich amplicon**  
+- **Curve B → GC-rich amplicon**  
+
+Answer:
+
+- which curve melts at lower Tm  
+- which sequence is more thermodynamically stable  
+- what sequence features explain the Tm difference  
+
+---
+
+### **Task 5 — Rule-of-Thumb Tm Estimates**
+For a short DNA sequence (<100 bp):
+
+1. Compute the simple estimate:
+   **Tm ≈ 2°C × (A+T) + 4°C × (G+C)**  
+2. Compare with an online calculator  
+3. Compare both with the simulator’s Tm  
+4. Explain why these values may differ  
+
+---
+
+### **Task 6 — Application Question**
+Give one real-world use of melting curve interpretation, such as:
+
+- verifying PCR product specificity  
+- SNP detection  
+- mutation scanning  
+- allele discrimination  
+- DNA stability assessment  
+
+Briefly explain how melting behavior is used in that context.
+
+---
+
+# 📖 **8. Glossary** <a name="glossary"></a>
+
+### **Tm (Melting Temperature)**  
+Temperature at which 50% of DNA molecules are melted.
+
+### **Fraction Melted**  
+Proportion of molecules that are single-stranded at a given temperature.
+
+### **dsDNA**  
+Double-stranded DNA.
+
+### **ssDNA**  
+Single-stranded DNA.
+
+### **Cooperative Melting**  
+Melting in one region destabilizes adjacent regions.
+
+### **Baseline**  
+Low-temperature region where DNA is fully duplexed.
+
+### **Plateau**  
+High-temperature region where DNA is fully single-stranded.
+
+### **Melting Domain**  
+A region of a long DNA molecule that melts at a characteristic temperature.
+
+### **First-Derivative Curve (–dF/dT)**  
+A curve showing the rate of melting; peaks correspond to melting transitions and Tm values.
+
+---
