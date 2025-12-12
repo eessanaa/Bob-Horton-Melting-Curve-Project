@@ -1,0 +1,584 @@
+---
+title: "Teaching App"
+author: "Bob Horton Group"
+date: "`December 12, 2025`"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+---
+
+<!-- FORCE FLOATING TOC / LEGEND TEXT TO BE NON-BOLD -->
+<style>
+  #TOC,
+  #TOC * {
+    font-weight: normal !important;
+  }
+</style>
+
+# 🧭 1. Overview
+
+The **DNA Melting Teaching App** is an interactive educational suite designed to teach students and researchers how **DNA melting behavior** responds to sequence composition, salt concentration, temperature, and strain-level variation.  
+
+Unlike the stand-alone melting simulators, this app is structured as a **guided curriculum** with:
+
+- 🧩 **Four curated learning modes**  
+- 🎓 Integrated **tutorial panels**  
+- 📝 **Quick-check quizzes** inside every mode  
+- 📊 Real-time melting curves, derivative plots, Tm estimation, and strain-matching tools  
+- 🔬 Embedded “Foundations” notes explaining concepts as students interact  
+
+This app delivers a complete, hands-on understanding of melting physics and its applications in **PCR analysis, variant detection, viral identification, and synthetic data generation**.
+
+---
+
+# 🔧 2. How the Teaching App Works  
+<a name="how-it-works"></a>
+
+The DNA Melting Teaching App contains **four structured learning environments**, each targeting a different aspect of melting analysis:
+
+| Mode | Focus | Skills Learned |
+|------|-------|----------------|
+| **Mode 1 — Intro to Melting Curves** | Single-sequence melting | GC%, Tm, derivative curves, ionic effects |
+| **Mode 2 — Comparative Mode** | Reference vs Variant | ΔTm, sequence similarity, structural differences |
+| **Mode 3 — Strain Identification** | Viral panel matching | Candidate ranking, cluster interpretation |
+| **Mode 4 — Simulation & Dataset Mode** | Synthetic datasets | GC targeting, curve simulation, exporting CSV |
+
+Each mode includes:
+
+- a left-side **input panel**,  
+- a dynamic **visualization panel**,  
+- optional **tutorial steps**,  
+- and a **quiz module** for quick comprehension checks.
+
+The interface is consistent across all modes:
+
+- **Temperature probe slider** → moves a vertical line through the melting curve  
+- **Derivative toggle** → shows where melting occurs most rapidly  
+- **Metrics box** → displays GC%, length, estimated Tm, fraction melted, and other mode-specific stats  
+
+Each mode functions independently, but together they form a complete progression from simple melting physics → comparative genomics → viral identification → synthetic data generation.
+
+---
+
+# 🌡3. Mode 1 — Introduction to Melting Curves  
+<a name="mode1"></a>
+![](Mode 1.png)
+> *Goal: Learn the fundamentals of DNA melting and how GC%, ionic conditions, and temperature shape the curve.*
+
+---
+
+## 3.1 Purpose of Mode 1
+
+Mode 1 is a **concept builder**.  
+Students begin with a single DNA sequence and learn:
+
+- What a melting curve represents  
+- How **GC%** shifts Tm  
+- How **[Na⁺]** and **DNA concentration** influence stability  
+- How to read the **derivative curve (dF/dT)**  
+- How to identify approximate **Tm** interactively  
+
+This mode is intentionally simple and visual, ideal for the first exposure to melting behavior.
+
+---
+
+## 3.2 Input Panel (Left Side)
+
+### **DNA Sequence**
+- Accepts A/T/G/C only  
+- Automatically computes **length** and **GC%**  
+- Sequence drives all calculations in both melting and derivative plots  
+
+---
+
+### **Conditions Panel**
+Parameters:
+
+| Input | Meaning | Effect |
+|-------|---------|--------|
+| **[Na⁺] (M)** | Sodium concentration | Higher Na⁺ → higher Tm |
+| **DNA concentration (M)** | Strand concentration | Higher conc. → more duplex → ↑Tm |
+| **Temperature probe (°C)** | Adjustable slider | Shows fraction melted at that temperature |
+
+**Tip:** Increasing GC% or increasing salt shifts Tm **to the right** (higher temperature).
+
+---
+
+## 3.3 Visualization Panel (Right Side)
+
+### **Fraction Melted vs Temperature**
+A sigmoidal curve representing the transition from dsDNA → ssDNA.
+
+Key features:
+
+- Left flat region = fully dsDNA  
+- Middle steep slope = **melting transition**  
+- Right plateau = fully ssDNA  
+- Vertical markers:
+  - **Tm reference**  
+  - **Current probe temperature**  
+
+### **Derivative Plot (dF/dT)**
+- Peak corresponds to the **temperature where melting occurs most rapidly**  
+- The maximum (peak center) = approximate **Tm**  
+
+---
+
+## 3.4 Intro Metrics (Bottom)
+
+Displayed values:
+
+- GC%  
+- Length (bp)  
+- Estimated Tm (°C)  
+- Fraction melted at current probe temperature  
+
+---
+
+## 3.5 Interactive Tutorial (Right Drawer)
+
+Tutorial steps include:
+
+1. Enter a DNA sequence  
+2. Modify salt or DNA concentration  
+3. Move the temperature probe slider  
+4. Use derivative peak to identify Tm  
+![](Mode 1 tutorial.png)
+---
+
+## 3.6 Quick-Check Quiz
+
+Example question:
+
+> **If GC% increases while [Na⁺] stays constant, what happens to Tm?**  
+> ✔ Tm usually increases.
+
+Students get immediate feedback before leaving the mode.
+# 🧪 4. Mode 2 — Comparative Mode  
+<a name="mode2"></a>
+
+> *Goal: Compare a reference sequence and a variant, visualize ΔTm shifts, evaluate similarity, and understand how even small mutations alter melting behavior.*
+
+Comparative Mode is the app’s first **multi-sequence analytical tool**.  
+Students learn how changes in sequence composition influence:
+
+- Melting curves  
+- Derivative peaks  
+- Tm values  
+- GC% differences  
+- Alignment identity  
+- Practical consequences for variant detection  
+
+This mode simulates what biologists do when comparing a **wild-type vs mutant**, or when evaluating **PCR amplicon identity**.
+
+---
+
+#  📚 4. Mode 2- Overview of Comparative 
+
+When entering Mode 2, students see:
+
+- Left panel → **Reference** (blue) + **Variant** (red) sequence input  
+- Middle panel → Overlaid melting curves and derivative plots  
+- Bottom panel → Comparative metrics  
+- Right drawer → Tutorial and quiz modules  
+
+This mode reinforces conceptual learning by making differences **visually obvious**.
+![](Mode 2.png)
+---
+
+## 4.2 Optional File Upload (Teacher Feature)
+
+Teachers may preload sequences using a `.js` file.
+
+Example:
+
+```js
+"ATGCGT...", "GGGACT...", ...
+```
+
+## 4.3 Manual Entry of Sequences
+
+Students may skip file upload entirely and type DNA sequences directly into the two provided fields:
+
+- **Reference sequence (blue)**  
+- **Variant sequence (red)**  
+
+Both inputs accept:
+
+- A/T/G/C only (case-insensitive)  
+- Length ≥ 6 bp  
+- Spaces or line breaks (automatically cleaned)  
+
+Once entered, the app immediately:
+
+- Recomputes melting curves  
+- Updates the derivative (dF/dT) plot  
+- Recalculates GC%, length, and Tm  
+- Shows the new ∆Tm and percent identity metrics  
+
+This allows students to explore how even small sequence changes affect melting behavior.
+
+---
+
+## 4.4 Shared Ionic Conditions
+
+Both sequences use the **same solution conditions** to ensure melting differences arise *only* from sequence composition:
+
+- **[Na⁺] (M)**  
+- **DNA concentration (M)**  
+- **Temperature probe (°C)**  
+
+Because ionic strength and concentration strongly influence Tm, keeping these equal teaches proper experimental control.
+
+---
+
+## 4.5 Temperature Probe (Vertical Line)
+
+A temperature slider controls a vertical probe line applied to *both* curves.
+
+At the selected temperature, the app reports:
+
+- Fraction melted (reference)  
+- Fraction melted (variant)  
+
+Students can observe:
+
+- Which sequence melts earlier  
+- How stability changes across the transition  
+- Where curves diverge (AT-rich segments melt first)
+
+---
+
+## 4.6 Melting Curve Overlay
+
+The main plot displays:
+
+- **Reference curve (blue)**  
+- **Variant curve (red)**  
+
+The overlay highlights:
+
+- Right-shifted curve → higher Tm → more stable  
+- Left-shifted curve → lower Tm → less stable  
+- Differences in cooperativity (slope steepness)  
+- Whether mutations increase or decrease duplex stability  
+
+Students visually connect sequence changes to physical melting behavior.
+
+---
+
+## 4.7 Derivative Plot (dF/dT)
+
+The derivative curve shows the rate of melting:
+
+- Peaks represent **Tm**  
+- Broader peaks → gradual transitions  
+- Narrow peaks → highly cooperative melting  
+
+The app overlays reference and variant derivative curves to pinpoint ∆Tm accurately.
+
+---
+
+## 4.8 Comparative Metrics Table
+
+Below the plots, the app computes:
+
+- **GC% (ref / var)**  
+- **Length (bp)**  
+- **Tm (ref / var)**  
+- **∆Tm (var − ref)**  
+- **Percent identity**  
+- **Fraction melted at the probe temperature**
+
+These quantitative comparisons reinforce the connection between sequence composition and melting thermodynamics.
+
+---
+
+## 4.9 Tutorial & Quiz (Right Panel)
+
+The teaching panel provides:
+
+**Tutorial:**  
+Step-by-step guidance for entering sequences, adjusting conditions, and interpreting curves.
+
+**Quiz Time:**  
+A multiple-choice question testing understanding of Tm behavior (e.g., effect of GC%).
+---
+This turns Comparative Mode into an interactive lesson on sequence-dependent melting behavior.
+---
+
+# 🦠 5. Mode 3 — Strain Identification Mode  
+<a name="mode3"></a>
+
+> *Goal: Match an unknown DNA amplicon to curated viral strain panels using melting curves, Tm shifts, and derivative profiles.*
+
+Strain Identification Mode simulates a simplified version of **melt-curve genotyping**, commonly used in viral surveillance, diagnostics, and variant tracking.  
+Students learn how melting behavior can differentiate closely related viral lineages—even when sequences differ by only a few nucleotides.
+
+This mode integrates:
+
+- curated viral strain libraries (e.g., **SARS-CoV-2 lineages**, **Influenza subtypes**)  
+- unknown sample classification  
+- melting-curve overlay comparisons  
+- ranking and scoring tables  
+- adjustable difficulty levels  
+
+It provides a hands-on way to understand how computational melting analysis supports real-world pathogen identification.
+
+![](Mode 3.png)
+---
+
+## 5.1 Strain Panel Selection (Left Panel)
+
+Students begin by choosing a curated panel:
+
+- **SARS-CoV-2 Lineage Panel (N gene amplicons)**  
+- **Influenza A Panel (HA or NA fragments)**  
+
+Each panel contains **multiple predefined sequences**, each behaving slightly differently under melting analysis due to:
+
+- GC% variation  
+- length variation  
+- local stability differences  
+- mutation patterns across viral lineages  
+
+### Difficulty Levels
+
+| Difficulty | Intended Use | Meaning |
+|-----------|--------------|---------|
+| **Beginner (wide clusters)** | Intro learning | Only large ΔTm differences used |
+| **Intermediate** | Moderate understanding | Clusters partially overlap |
+| **Expert (subtle differences)** | Advanced users | Very small ΔTm shifts distinguish strains |
+
+Difficulty modifies how “high-confidence” and “ambiguous” matches are described in the result tables.
+
+---
+
+## 5.2 Unknown Sample Entry
+
+Students paste their **unknown amplicon** into the text field.
+
+- Must contain A/T/G/C only  
+- Automatically cleaned  
+- Typical length ~20–200 bp (depending on panel)  
+
+Pressing **Match Strain** triggers:
+
+- melting curve calculation for the unknown  
+- derivative curve generation  
+- comparison to every strain in the selected panel  
+
+---
+
+## 5.3 Visualization Panel — Unknown vs Top Candidate
+
+The top graphs display:
+
+### **Fraction Melted vs Temperature**
+
+- Blue curve → candidate strain  
+- Red curve → unknown sample  
+- ΔTm and alignment-level differences become visible instantly  
+- Right-shifted candidate curve → more thermodynamically stable  
+
+### **Derivative Plot (dF/dT)**  
+- Peak positions show precise Tm differences  
+- Peak widths indicate cooperativity  
+- Overlaid peaks help students observe subtle strain distinctions  
+
+The combined view teaches students how diagnostics use melting fingerprints rather than full sequencing.
+
+---
+
+## 5.4 Strain Matching Results (Bottom Panel)
+
+After pressing **Match Strain**, the app generates a ranked table:
+
+For each candidate strain:
+
+- **Tm (candidate)**  
+- **ΔTm (unknown − candidate)**  
+- **Identity (%)**  
+- **RMSD (curve similarity score)**  
+- **Interpretation notes** (e.g., “Cluster overlap”, “Ambiguous”, “High-confidence”)  
+
+Example ranking:
+
+1. SARS-CoV-2 Omicron BA.1-like  
+2. SARS-CoV-2 Wuhan-Hu-1-like  
+3. SARS-CoV-2 Delta-like  
+4. …
+
+The student can see whether:
+
+- multiple strains fall in the same cluster (“ambiguous case”), or  
+- one strain clearly matches based on Tm and RMSD.
+
+---
+
+## 5.5 Interpretation Skills Developed
+
+Students learn to:
+
+- distinguish strains using **melting physics**, not full sequencing  
+- understand **cluster behavior** across viral families  
+- see how **Tm shifts accumulate** from small sequence changes  
+- recognize **similarity vs differentiation limits**
+
+This mirrors real laboratory decision-making in qPCR melt-curve assays.
+
+---
+
+## 5.6 Tutorial & Quiz (Right Drawer)
+
+### Tutorial covers:
+
+1. Choose a viral panel  
+2. Paste unknown sequence  
+3. Click “Match Strain”  
+4. Analyze the ranked table  
+5. Compare melting curves visually  
+
+### Quiz Example
+
+> **If two strains have nearly identical GC% and length, but their derivative peaks differ by ~0.3°C, what does this suggest?**  
+> ✔ Subtle sequence differences still shift melting behavior.
+
+This reinforces cluster-based variant identification logic.
+
+---
+
+# 🧬 6. Mode 4 — Simulation & Dataset Mode  
+<a name="mode4"></a>
+
+> *Goal: Generate synthetic DNA sequences, simulate melting curves under customizable conditions, and export datasets for R/Python/homework.*
+
+Mode 4 transforms the app into a **dataset generator** suitable for:
+
+- machine learning labs  
+- curve-fitting training  
+- student projects  
+- synthetic controls for teaching  
+
+Students gain complete control over sequence generation, GC targeting, curve simulation, and CSV exporting.
+
+![](Mode 4.png)
+---
+
+## 6.1 Sequence Generator (Left Panel)
+
+Students can produce **single synthetic sequences** by setting:
+
+- **Length minimum (bp)**  
+- **Length maximum (bp)**  
+- **Target GC%**  
+
+Pressing **Generate New Sequence**:
+
+- replaces the current sequence  
+- regenerates melting + derivative curves  
+- updates GC%, length, and estimated Tm metrics  
+
+Pressing **Preview**:
+
+- keeps sequence unchanged  
+- *only* updates melting behavior based on new conditions  
+
+This teaches the difference between *sequence variation* vs *environmental variation*.
+
+---
+
+## 6.2 Conditions Panel
+
+Parameters:
+
+- **[Na⁺] (M)**  
+- **DNA concentration (M)**  
+- **Temperature probe (°C)**  
+
+Students observe how environmental factors interact with GC targeting to shape melting.
+
+---
+
+## 6.3 Visualization Panel
+
+### Melting Curve Plot  
+- Shows the simulated curve  
+- Displays Tm reference and probe position  
+- Demonstrates how synthetic GC% affects stability  
+
+### Derivative Plot  
+- Peak sharpness and position adjust dynamically  
+- Useful for teaching cooperativity and slope interpretation  
+
+---
+
+## 6.4 Synthetic Sequence Metrics (Bottom Panel)
+
+Includes:
+
+- final length  
+- GC%  
+- estimated Tm  
+- fraction melted at probe  
+
+These values demonstrate how close the generated sequence is to the target GC% and expected behavior.
+
+---
+
+## 6.5 Exporting CSV
+
+Students can export:
+
+- temperature series  
+- fraction-melted values  
+- derivative values  
+- computed metrics  
+
+This allows instructors to design:
+
+- R-based homework  
+- Python ML curve fitting tasks  
+- downstream visualization assignments  
+
+---
+
+## 6.6 Tutorial & Quiz
+
+Tutorial steps explain:
+
+1. Setting GC% and length range  
+2. Adjusting Na⁺ and DNA concentration  
+3. Generating vs previewing curves  
+4. Exporting CSV  
+
+Quiz questions reinforce GC%–Tm relationships and environmental effects.
+
+---
+
+# 📖 7. Glossary  
+<a name="glossary"></a>
+
+**Tm (Melting Temperature)** – temperature at which 50% of DNA is melted  
+**Fraction Melted** – proportion of dsDNA converted to ssDNA at a given temperature  
+**Derivative (dF/dT)** – rate of melting; peak indicates Tm  
+**GC%** – proportion of G+C bases; increases duplex stability  
+**RMSD** – root-mean-square deviation between two curves  
+**Cluster** – group of viral strains with similar melting behavior  
+
+---
+
+# 🏁 8. Closing Notes  
+<a name="closing"></a>
+
+The **DNA Melting Teaching App** is a complete interactive system for understanding melting physics from first principles to advanced diagnostic applications.  
+Across its four modes, students build intuition for:
+
+- how sequence composition shapes stability  
+- how to compare reference and variant amplicons  
+- how melting curves can identify viral strains  
+- how to generate synthetic data for scientific workflows  
+
+In conclusion, the DNA Melting Teaching App brings everything together in a way that makes learning melting behavior a lot more intuitive. Instead of just reading about Tm or looking at static graphs, students can actually see how sequence changes, ionic conditions, and GC% all affect the curve in real time. The different modes also make it easy to connect basic concepts to real applications, like comparing variants or even matching viral strains.
+It is both a teaching tool and a practical simulation environment for students to easily understand melting curves.
