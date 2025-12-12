@@ -1,0 +1,284 @@
+---
+title: "\U0001F9EC DNA Melting Curve Simulator"
+author: "Bob Horton Group"
+date: "`December 12, 2025`"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+---
+
+<!-- FORCE FLOATING TOC / LEGEND TEXT TO BE NON-BOLD -->
+<style>
+  #TOC,
+  #TOC * {
+    font-weight: normal !important;
+  }
+</style>
+
+---
+
+# <a name="overview"></a> 🧬 **1. Overview**
+
+The **DNA Melting Curve Simulator** models how double-stranded DNA (dsDNA) separates into single-stranded DNA (ssDNA) as temperature increases.  
+It uses:
+
+- **nearest-neighbor thermodynamics (Santa Lucia model)**  
+- **local window melting analysis**  
+- **optional statistical smoothing (HMM-based modes)**  
+- **interactive real-time visualization**
+
+This version of the simulator emphasizes both **conceptual understanding** and **fine-grained molecular behavior**, allowing users to see how sequence composition, ionic strength, cooperative interactions, and local domain stability collectively determine melting characteristics.  
+It provides both a **global curve** and a **base-by-base representation**, helping bridge theoretical DNA thermodynamics with intuitive visual interpretation.
+
+![](dna_simulator_full.png)
+
+
+---
+
+# <a name="purpose"></a> 🎯 **2. Purpose**
+
+The simulator helps users:
+
+- Understand DNA stability and melting transitions  
+- Observe how temperature, GC content, Na⁺, Mg²⁺, and sequence length shape melting curves  
+- Visualize both **fraction melted** and **base-by-base melt states**  
+- Examine the thermodynamic contributions of DNA regions  
+- Compare stability patterns along the sequence using sliding-window analysis  
+- Develop intuition for how physical chemistry concepts appear in real biological systems  
+
+It is designed for:
+
+- molecular biology students  
+- bioengineering and diagnostics researchers  
+- computational biologists  
+- anyone studying DNA sequence-dependent thermodynamics  
+
+By adjusting parameters, users can simulate conditions similar to PCR, HRM assays, hybridization reactions, or diagnostic melt analyses.
+
+---
+
+# <a name="interface"></a> 📟 **3. Interface Overview**
+
+| Panel | Description |
+|-------|-------------|
+| **Inputs (left)** | All DNA & thermodynamic parameters |
+| **Visualization (right)** | Melting curve, melt-state strip, slider, cursor |
+
+The layout is intentionally simple: parameters on the left update a live, responsive visualization on the right. This makes the tool ideal for demonstrations, teaching sessions, or exploratory scientific analysis.
+
+![](dna_simulator_interface.png)`
+
+---
+
+# <a name="inputs"></a> 🎚️ **4. Input Panel (User Controls)**
+
+This section determines how the melting curve is generated, and each control directly influences both the **global melting profile** and **local base-pair melting behavior**.
+
+---
+
+## **4.1 DNA Sequence**
+
+A free-text sequence input (A/T/G/C).  
+
+- Automatically cleaned of spaces & invalid characters  
+- Case-insensitive  
+- Drives all downstream thermodynamic calculations  
+- The sequence length determines the width of the melt-state strip  
+
+The tool recalculates melting behavior every time the sequence changes, enabling rapid exploration of designed primers, synthetic fragments, or biologically relevant DNA regions.
+
+---
+
+## **4.2 Ionic Conditions**
+
+### **[Na⁺] concentration (M)**  
+Stabilizes dsDNA by reducing electrostatic repulsion.
+
+- Higher Na⁺ → **higher Tm**  
+- Lower Na⁺ → **lower Tm**
+- Influences both melting onset and transition steepness  
+
+---
+
+### **[Mg²⁺] concentration (M)**  
+Magnesium ions have **stronger stabilizing effects** than Na⁺ due to their +2 charge.
+
+- Even small Mg²⁺ changes noticeably affect Tm  
+- Higher Mg²⁺ → sharper transitions  
+- Increasing Mg²⁺ can compress the melting region into a narrower temperature window  
+
+This makes Mg²⁺ essential for PCR-style thermal stability simulations.
+
+---
+
+## **4.3 Strand Concentration (M)**
+
+Controls the entropy term in Tm calculations.
+
+- Higher concentration → promotes duplex formation → **raises Tm**  
+- Lower concentration → favors ssDNA → **lowers Tm**
+
+This parameter is tightly linked to conditions in molecular assays such as hybridization probes, qPCR, and oligo annealing steps.
+
+---
+
+## **4.4 Window Size (bp)**
+
+Local melting temperature is computed over sliding windows.
+
+- Smaller windows → high-resolution local melting detail  
+- Larger windows → smoother averaged behavior  
+- Helps identify GC-rich domains or AT-rich weak spots  
+
+The default value of **15 bp** balances local detail with computational efficiency and smoothness.
+
+---
+
+## **4.5 Algorithm Mode (Dropdown)**
+
+A key control for how melting is approximated.
+
+### **Default Mode: Independent**
+
+This is the recommended instructional mode.
+
+- Computes melting by treating local windows independently  
+- Produces clean, intuitive melting curves  
+- Ideal for basic teaching and visualization  
+- Minimizes algorithmic complexity for new users  
+
+This mode will be shown in all screenshots.
+
+---
+
+### **Additional Advanced Modes (Not Required for Basic Use)**  
+
+These appear in the dropdown but are mainly for research exploration:
+
+- **HMM Posterior**  
+- **HMM Viterbi**  
+- **Thermodynamic**  
+- **Sigmoid**  
+- **Pedagogical HMM**  
+- **Transfer Matrix (Fast / Full)**  
+- **Partition Function (Fast / Full)**  
+
+These represent different strategies for modeling DNA melting—ranging from probabilistic inference to statistical mechanics partition functions.  
+While powerful, they are not needed for typical instructional use and are intentionally not discussed in depth here.
+
+---
+
+## **4.6 Advanced Parameters**
+
+These refine curve smoothing and local coordination but do not alter core thermodynamics.
+
+### **Domain L**
+Approximate interaction length between neighboring bases.  
+Larger values cause wider cooperative regions; smaller values produce more local transitions.
+
+---
+
+### **πₘ (pi-m)**  
+Controls steepness of the cooperative melting region.  
+Increasing πₘ makes the melting transition more switch-like.
+
+---
+
+### **ε (epsilon)**  
+A numerical stability constant preventing singularities.  
+Especially relevant when analyzing near-zero or near-one melt fractions.
+
+---
+
+### **Cooperativity (0–5)**  
+Adjusts how strongly neighboring bases influence one another:
+
+- 0 → fully independent melting  
+- 5 → steep, highly cooperative transitions  
+- Higher values resemble classic two-state melting models  
+
+This parameter helps illustrate why certain DNA regions melt gradually while others transition abruptly.
+
+---
+
+# <a name="visualization"></a> 📊 **5. Visualization Panel**
+
+Updated automatically upon any parameter change, the visualization provides both a **macro-scale** and **micro-scale** view of DNA melting.
+
+---
+
+## **5.1 Melting Curve Plot (Fraction Melted vs Temperature)**
+
+- Starts flat (dsDNA)  
+- Rises through the melting region  
+- Plateaus (ssDNA)  
+- The slope and curvature reflect GC/AT distribution and cooperativity  
+
+A vertical dashed line tracks the current temperature, allowing precise inspection of melting behavior at any point.
+
+![](melting_curve_zoom.png)
+
+---
+
+## **5.2 Temperature Slider**
+
+Controls the red vertical cursor.
+
+- Range: **20–100°C**  
+- Updates fraction melted and melt-state strip in real time  
+- Allows users to simulate slow temperature ramps similar to HRM or PCR melt steps  
+
+---
+
+## **5.3 Base-Pair Melt-State Strip**
+
+Shows how each base behaves at the chosen temperature:
+
+- **Blue** = paired (dsDNA)  
+- **Red** = melted (ssDNA)  
+
+This strip provides a level of interpretive depth not available in standard melting curve experiments, revealing how local sequence features—GC islands, AT-rich patches, or palindromic motifs—melt independently.
+
+---
+
+## **5.4 Summary Indicators**
+
+Displayed under the melt strip:
+
+- **Fraction melted** (global melting state at selected temperature)  
+- **Median local Tᵐ** (approximate central stability metric across windows)  
+- **Sequence length**  
+
+These indicators help contextualize melting behavior and relate it back to experiment-like metrics.
+
+---
+
+# <a name="examples"></a> 🧪 **6. Example Workflow**
+
+1. Paste a DNA sequence  
+2. Leave algorithm on **Independent**  
+3. Adjust Na⁺ and Mg²⁺  
+4. Move the slider from 20°C → 100°C  
+5. Observe melting behavior:
+
+- AT-rich areas transition first  
+- GC-rich areas melt last  
+- The curve’s steepest point approximates the **Tm**  
+- The melt strip reveals multi-domain melting behavior in longer sequences  
+
+This workflow mirrors how researchers evaluate primer stability or HRM-based variant detection.
+
+---
+
+# <a name="interpretation"></a> 🧠 **7. Interpreting Results**
+
+| Factor | Effect on Tm | Why |
+|--------|--------------|------|
+| ↑ GC content | ↑ Tm | Stronger base stacking + 3 H-bonds |
+| ↑ Na⁺ | ↑ Tm | Ionic shielding stabilizes duplex |
+| ↑ Mg²⁺ | ↑↑ Tm | Multivalent stabilization |
+| Longer sequence | ↑ Tm | More total interactions |
+| AT-rich regions | Melt early | Lower energetic stability |
+
+These relationships reflect established DNA biophysics and can be directly compared to experimental melting curves from qPCR, HRM, or UV absorbance assays.
